@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Souza Farma - PIX Oficial</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* INTERFACE NA TELA */
+        body { 
+            font-family: 'Courier New', monospace; 
+            background: #f0f0f0; 
+            margin: 0; 
+            padding: 20px; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .box { 
+            background: white; 
+            padding: 24px; 
+            border-radius: 16px; 
+            width: 400px; 
+            text-align: center; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        
+        h3 { 
+            color: #1a5d3c; 
+            font-size: 20px; 
+            margin-bottom: 5px;
+        }
+        
+        .sub {
+            color: #666;
+            font-size: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        label { 
+            font-size: 12px; 
+            color: #666; 
+            display: block;
+            text-align: left;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        input { 
+            width: 100%; 
+            padding: 12px; 
+            margin: 0 0 15px 0; 
+            border: 2px solid #ddd; 
+            border-radius: 10px; 
+            box-sizing: border-box; 
+            font-size: 16px; 
+            font-family: monospace;
+            text-align: center;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #1a5d3c;
+        }
+        
+        button { 
+            width: 100%; 
+            padding: 12px; 
+            cursor: pointer; 
+            border: none; 
+            border-radius: 10px; 
+            font-weight: bold; 
+            margin-bottom: 10px; 
+            font-size: 14px; 
+            transition: all 0.2s;
+        }
+        
+        .btn-gerar { 
+            background: #1a5d3c; 
+            color: white; 
+        }
+        
+        .btn-gerar:hover {
+            background: #0e3d26;
+            transform: scale(0.98);
+        }
+        
+        .btn-imprimir { 
+            background: #2d3748; 
+            color: white; 
+        }
+        
+        .btn-imprimir:hover {
+            background: #1a202c;
+        }
+        
+        .btn-copiar {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .btn-copiar:hover {
+            background: #2563eb;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        
+        .btn-group button {
+            flex: 1;
+            margin-bottom: 0;
+        }
+        
+        #q-view {
+            margin: 15px 0;
+            display: flex;
+            justify-content: center;
+        }
+        
+        #q-view img {
+            border: 2px solid #ddd;
+            padding: 8px;
+            border-radius: 12px;
+            background: white;
+        }
+        
+        #v-view {
+            font-weight: bold;
+            margin: 10px 0;
+            font-size: 14px;
+            color: #1a5d3c;
+        }
+        
+        .chave-info {
+            background: #f0fdf4;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-size: 11px;
+            color: #166534;
+        }
+        
+        .codigo-container {
+            background: #f1f5f9;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            text-align: left;
+        }
+        
+        .codigo-label {
+            font-size: 9px;
+            color: #666;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .codigo-texto {
+            font-size: 8px;
+            font-family: monospace;
+            word-break: break-all;
+            background: white;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            max-height: 80px;
+            overflow-y: auto;
+        }
+        
+        .copiado-msg {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1a5d3c;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 12px;
+            z-index: 1000;
+            animation: fadeOut 2s ease-in-out;
+        }
+        
+        @keyframes fadeOut {
+            0% { opacity: 1; }
+            70% { opacity: 1; }
+            100% { opacity: 0; visibility: hidden; }
+        }
+
+        /* CONFIGURAÇÃO DE IMPRESSÃO TÉRMICA 70mm */
+        @media print {
+            @page { 
+                size: 70mm auto; 
+                margin: 0 !important; 
+            }
+            
+            body { 
+                background: white; 
+                margin: 0 !important; 
+                padding: 0 !important; 
+                width: 70mm; 
+            }
+            
+            .box { 
+                display: none !important; 
+            }
+            
+            #print-zone { 
+                display: block !important; 
+                width: 70mm !important;
+                position: absolute; 
+                top: 0 !important; 
+                left: 0 !important;
+                margin: 0 !important; 
+                padding: 3mm 2mm !important;
+                text-align: center;
+                font-family: 'Courier New', monospace;
+            }
+            
+            #q-print {
+                margin: 2mm 0;
+            }
+            
+            #q-print img { 
+                width: 45mm !important; 
+                height: 45mm !important; 
+                border: 1px solid #000;
+                padding: 2mm;
+            }
+            
+            h2 { 
+                font-size: 14pt; 
+                margin: 0 0 2mm 0; 
+                font-weight: bold; 
+                letter-spacing: 2px;
+            }
+            
+            .empresa {
+                font-size: 8pt;
+                margin: 1mm 0;
+                color: #333;
+            }
+            
+            .linha {
+                border-top: 1px dashed #000;
+                margin: 2mm 0;
+            }
+            
+            .valor-print { 
+                font-size: 13pt; 
+                font-weight: bold; 
+                margin: 2mm 0; 
+                padding: 1mm;
+                border: 1px dashed #000;
+            }
+            
+            .chave-print {
+                font-size: 11pt;
+                font-weight: bold;
+                margin: 2mm 0;
+                background: #f0f0f0;
+                padding: 1mm;
+            }
+            
+            .instrucao {
+                font-size: 7pt;
+                margin: 2mm 0;
+                text-align: left;
+            }
+            
+            .footer {
+                font-size: 7pt;
+                margin-top: 2mm;
+                padding-top: 1mm;
+                border-top: 1px dashed #000;
+            }
+            
+            .codigo-print {
+                display: none;
+            }
+        }
+        
+        #print-zone { 
+            display: none; 
+        }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <h3>💊 SOUZA FARMA</h3>
+    <div class="sub">Pagamento via PIX</div>
+    
+    <label>💰 Valor do PIX (R$)</label>
+    <input type="number" id="val" placeholder="0,00" step="0.01" value="0.00">
+    
+    <button class="btn-gerar" onclick="gerar()">✨ GERAR QR CODE PIX</button>
+    
+    <div id="view" style="display:none">
+        <div id="q-view"></div>
+        <div id="v-view"></div>
+        
+        <div class="codigo-container">
+            <div class="codigo-label">📋 CÓDIGO PIX (Copiar e Colar)</div>
+            <div class="codigo-texto" id="codigoPayload"></div>
+        </div>
+        
+        <div class="btn-group">
+            <button class="btn-copiar" onclick="copiarCodigo()">📋 Copiar código</button>
+            <button class="btn-imprimir" onclick="imprimir()">🖨️ Imprimir</button>
+        </div>
+        
+        <div class="chave-info">
+            🔑 Chave PIX: 45.856.880/0001-30
+        </div>
+    </div>
+</div>
+
+<div id="print-zone">
+    <h2>SOUZA FARMA</h2>
+    <div class="empresa">CNPJ: 45.856.880/0001-30</div>
+    <div class="linha"></div>
+    
+    <div id="q-print"></div>
+    
+    <div id="v-print" class="valor-print"></div>
+    
+    <div class="chave-print">
+        🔑 Chave PIX: 45.856.880/0001-30
+    </div>
+    
+    <div class="instrucao">
+        📱 COMO PAGAR:<br>
+        1. Abra o app do seu banco<br>
+        2. Escolha PIX → Pagar com QR Code ou Copiar código<br>
+        3. Escaneie o QR Code ou cole o código<br>
+        4. Confirme o valor e finalize
+    </div>
+    
+    <div class="linha"></div>
+    
+    <div class="footer">
+        Souza Farma - Sua saúde em boas mãos<br>
+        Após o pagamento, apresente este comprovante
+    </div>
+</div>
+
+<script>
+let payloadAtual = "";
+
+function gerar() {
+    const valorInput = document.getElementById('val').value;
+    const valorNum = parseFloat(valorInput);
+    const valorFormatado = (!isNaN(valorNum) && valorNum > 0) ? valorNum.toFixed(2) : "";
+    
+    // Dados da Souza Farma
+    const chave = "45856880000130";
+    const nome = "SOUZA FARMA";
+    const cidade = "SAO PAULO";
+    
+    // Monta o payload PIX completo
+    const payload = montarPix(chave, nome, cidade, valorFormatado);
+    payloadAtual = payload;
+    
+    // Limpa containers
+    document.getElementById('q-view').innerHTML = "";
+    document.getElementById('q-print').innerHTML = "";
+    
+    // Gera QR Code para visualização na tela
+    new QRCode(document.getElementById("q-view"), { 
+        text: payload, 
+        width: 160, 
+        height: 160 
+    });
+    
+    // Gera QR Code para impressão (maior)
+    new QRCode(document.getElementById("q-print"), { 
+        text: payload, 
+        width: 180, 
+        height: 180 
+    });
+    
+    // Mostra o código copia e cola
+    document.getElementById('codigoPayload').innerHTML = payload;
+    
+    // Atualiza display do valor na tela
+    const valorExib = (valorFormatado) ? `Valor: R$ ${valorFormatado.replace('.', ',')}` : "Valor: ABERTO (digite no app)";
+    document.getElementById('v-view').innerHTML = `<strong>${valorExib}</strong>`;
+    
+    // Atualiza display do valor na impressão
+    const valorPrint = document.getElementById('v-print');
+    if (valorFormatado) {
+        valorPrint.innerHTML = `💰 VALOR: R$ ${valorFormatado.replace('.', ',')}`;
+        valorPrint.style.display = "block";
+    } else {
+        valorPrint.innerHTML = `💰 VALOR ABERTO (digite o valor no app)`;
+        valorPrint.style.display = "block";
+    }
+    
+    // Mostra a área de resultados
+    document.getElementById('view').style.display = "block";
+}
+
+function montarPix(chave, nome, cidade, valor) {
+    let payload = "000201";
+    let gui = "0014BR.GOV.BCB.PIX";
+    let chavePix = "01" + chave.length.toString().padStart(2, '0') + chave;
+    let merchantAccount = "26" + (gui.length + chavePix.length).toString().padStart(2, '0') + gui + chavePix;
+    
+    payload += merchantAccount;
+    payload += "52040000"; // Merchant Category Code
+    payload += "5303986";  // Moeda: BRL
+    
+    if (valor && valor !== "") {
+        payload += "54" + valor.length.toString().padStart(2, '0') + valor;
+    }
+
+    payload += "5802BR"; // Country Code
+    payload += "59" + nome.length.toString().padStart(2, '0') + nome;
+    payload += "60" + cidade.length.toString().padStart(2, '0') + cidade;
+    payload += "62070503***"; // TXID padrão
+    payload += "6304"; // Início do CRC
+    
+    return payload + crc16(payload);
+}
+
+function crc16(p) {
+    let crc = 0xFFFF;
+    const polinomio = 0x1021;
+    for (let i = 0; i < p.length; i++) {
+        crc ^= (p.charCodeAt(i) << 8);
+        for (let j = 0; j < 8; j++) {
+            if ((crc & 0x8000) !== 0) {
+                crc = (crc << 1) ^ polinomio;
+            } else {
+                crc <<= 1;
+            }
+            crc &= 0xFFFF;
+        }
+    }
+    return (crc & 0xFFFF).toString(16).toUpperCase().padStart(4, '0');
+}
+
+function copiarCodigo() {
+    if (!payloadAtual) {
+        alert('Gere o QR Code primeiro!');
+        return;
+    }
+    
+    navigator.clipboard.writeText(payloadAtual).then(() => {
+        // Mostra mensagem de sucesso
+        const msg = document.createElement('div');
+        msg.className = 'copiado-msg';
+        msg.innerHTML = '✅ Código PIX copiado! Cole no app do banco.';
+        document.body.appendChild(msg);
+        
+        setTimeout(() => {
+            msg.remove();
+        }, 2000);
+    }).catch(() => {
+        alert('❌ Erro ao copiar. Selecione o texto manualmente.');
+    });
+}
+
+function imprimir() {
+    window.print();
+}
+
+// Inicializar com um valor exemplo
+setTimeout(() => {
+    document.getElementById('val').value = "0.00";
+    gerar();
+}, 100);
+</script>
+
+</body>
+</html>
