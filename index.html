@@ -27,7 +27,7 @@
             background: white; 
             padding: 24px; 
             border-radius: 16px; 
-            width: 420px; 
+            width: 450px; 
             text-align: center; 
             box-shadow: 0 4px 20px rgba(0,0,0,0.1);
         }
@@ -175,6 +175,17 @@
             color: #666;
             margin-bottom: 5px;
             font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .codigo-label button {
+            width: auto;
+            padding: 4px 8px;
+            font-size: 10px;
+            margin: 0;
+            background: #3b82f6;
         }
         
         .codigo-texto {
@@ -187,6 +198,40 @@
             border: 1px solid #ddd;
             max-height: 80px;
             overflow-y: auto;
+        }
+        
+        .chave-container {
+            background: #f0fdf4;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            text-align: left;
+        }
+        
+        .chave-label {
+            font-size: 9px;
+            color: #166534;
+            margin-bottom: 5px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .chave-label button {
+            width: auto;
+            padding: 4px 8px;
+            font-size: 10px;
+            margin: 0;
+            background: #22c55e;
+        }
+        
+        .chave-valor {
+            font-size: 14px;
+            font-weight: bold;
+            font-family: monospace;
+            text-align: center;
+            letter-spacing: 1px;
         }
         
         .copiado-msg {
@@ -216,6 +261,13 @@
             margin: 10px 0;
             font-size: 11px;
             color: #1e40af;
+        }
+        
+        .whatsapp-note {
+            font-size: 10px;
+            color: #666;
+            margin-top: -10px;
+            margin-bottom: 10px;
         }
 
         /* CONFIGURAÇÃO DE IMPRESSÃO TÉRMICA 70mm */
@@ -306,11 +358,6 @@
                 border-top: 1px dashed #000;
             }
             
-            .codigo-print {
-                display: none;
-            }
-            
-            /* Telefone NÃO aparece na impressão */
             .telefone-info, .btn-whatsapp, .whatsapp-note {
                 display: none !important;
             }
@@ -318,12 +365,6 @@
         
         #print-zone { 
             display: none; 
-        }
-        
-        .whatsapp-note {
-            font-size: 10px;
-            color: #666;
-            margin-top: 5px;
         }
     </style>
 </head>
@@ -346,19 +387,27 @@
         <div id="q-view"></div>
         <div id="v-view"></div>
         
+        <!-- Seção da Chave PIX com botão de copiar individual -->
+        <div class="chave-container">
+            <div class="chave-label">
+                🔑 CHAVE PIX (CNPJ)
+                <button class="btn-copiar-chave" onclick="copiarChave()">📋 Copiar chave</button>
+            </div>
+            <div class="chave-valor" id="chaveValor">45.856.880/0001-30</div>
+        </div>
+        
+        <!-- Seção do Código PIX com botão de copiar individual -->
         <div class="codigo-container">
-            <div class="codigo-label">📋 CÓDIGO PIX (Copiar e Colar)</div>
+            <div class="codigo-label">
+                📋 CÓDIGO PIX (Copiar e Colar)
+                <button class="btn-copiar-codigo" onclick="copiarCodigo()">📋 Copiar código</button>
+            </div>
             <div class="codigo-texto" id="codigoPayload"></div>
         </div>
         
         <div class="btn-group">
-            <button class="btn-copiar" onclick="copiarCodigo()">📋 Copiar código</button>
             <button class="btn-whatsapp" onclick="enviarWhatsApp()">💚 Enviar via WhatsApp</button>
             <button class="btn-imprimir" onclick="imprimir()">🖨️ Imprimir</button>
-        </div>
-        
-        <div class="chave-info">
-            🔑 Chave PIX: 45.856.880/0001-30
         </div>
         
         <div id="telefoneInfo" class="telefone-info" style="display:none;"></div>
@@ -434,6 +483,9 @@ function gerar() {
     // Mostra o código copia e cola
     document.getElementById('codigoPayload').innerHTML = payload;
     
+    // Mostra a chave PIX
+    document.getElementById('chaveValor').innerHTML = "45.856.880/0001-30";
+    
     // Atualiza display do valor na tela
     const valorExib = (valorFormatado) ? `Valor: R$ ${valorFormatado.replace('.', ',')}` : "Valor: ABERTO (digite no app)";
     document.getElementById('v-view').innerHTML = `<strong>${valorExib}</strong>`;
@@ -501,6 +553,17 @@ function crc16(p) {
     return (crc & 0xFFFF).toString(16).toUpperCase().padStart(4, '0');
 }
 
+function mostrarMensagem(mensagem) {
+    const msg = document.createElement('div');
+    msg.className = 'copiado-msg';
+    msg.innerHTML = mensagem;
+    document.body.appendChild(msg);
+    
+    setTimeout(() => {
+        msg.remove();
+    }, 2000);
+}
+
 function copiarCodigo() {
     if (!payloadAtual) {
         alert('Gere o QR Code primeiro!');
@@ -508,17 +571,19 @@ function copiarCodigo() {
     }
     
     navigator.clipboard.writeText(payloadAtual).then(() => {
-        // Mostra mensagem de sucesso
-        const msg = document.createElement('div');
-        msg.className = 'copiado-msg';
-        msg.innerHTML = '✅ Código PIX copiado! Cole no app do banco.';
-        document.body.appendChild(msg);
-        
-        setTimeout(() => {
-            msg.remove();
-        }, 2000);
+        mostrarMensagem('✅ Código PIX copiado! Cole no app do banco.');
     }).catch(() => {
-        alert('❌ Erro ao copiar. Selecione o texto manualmente.');
+        alert('❌ Erro ao copiar.');
+    });
+}
+
+function copiarChave() {
+    const chave = "45.856.880/0001-30";
+    
+    navigator.clipboard.writeText(chave).then(() => {
+        mostrarMensagem('✅ Chave PIX copiada! Cole no app do banco.');
+    }).catch(() => {
+        alert('❌ Erro ao copiar.');
     });
 }
 
@@ -549,12 +614,14 @@ function enviarWhatsApp() {
     
     // Prepara a mensagem
     const valorExib = valorAtual ? `R$ ${valorAtual.replace('.', ',')}` : "VALOR ABERTO";
+    const chave = "45.856.880/0001-30";
+    
     const mensagem = `🏥 *SOUZA FARMA*\n\n` +
                      `✅ *Pagamento via PIX*\n\n` +
                      `💰 *Valor:* ${valorExib}\n\n` +
+                     `🔑 *Chave PIX (CNPJ):* ${chave}\n\n` +
                      `📋 *Código PIX para copiar e colar:*\n` +
                      `${payloadAtual}\n\n` +
-                     `🔑 *Chave PIX (CNPJ):* 45.856.880/0001-30\n\n` +
                      `🔹 *Como pagar:*\n` +
                      `1. Abra o app do banco\n` +
                      `2. Escolha PIX → Pagar com QR Code ou Copiar código\n` +
