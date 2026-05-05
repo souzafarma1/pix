@@ -153,6 +153,15 @@
             color: #1a5d3c;
         }
         
+        .chave-info {
+            background: #f0fdf4;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-size: 11px;
+            color: #166534;
+        }
+        
         .codigo-container {
             background: #f1f5f9;
             padding: 10px;
@@ -245,20 +254,20 @@
             100% { opacity: 0; visibility: hidden; }
         }
         
+        .telefone-info {
+            background: #e8f0fe;
+            padding: 8px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-size: 11px;
+            color: #1e40af;
+        }
+        
         .whatsapp-note {
             font-size: 10px;
             color: #666;
             margin-top: -10px;
             margin-bottom: 10px;
-        }
-        
-        .dica {
-            background: #fef3c7;
-            padding: 8px;
-            border-radius: 8px;
-            font-size: 10px;
-            margin-top: 10px;
-            color: #92400e;
         }
 
         /* CONFIGURAÇÃO DE IMPRESSÃO TÉRMICA 70mm */
@@ -349,7 +358,7 @@
                 border-top: 1px dashed #000;
             }
             
-            .whatsapp-note, .dica, .btn-whatsapp {
+            .telefone-info, .btn-whatsapp, .whatsapp-note {
                 display: none !important;
             }
         }
@@ -378,6 +387,7 @@
         <div id="q-view"></div>
         <div id="v-view"></div>
         
+        <!-- Seção da Chave PIX com botão de copiar individual -->
         <div class="chave-container">
             <div class="chave-label">
                 🔑 CHAVE PIX (CNPJ)
@@ -386,6 +396,7 @@
             <div class="chave-valor" id="chaveValor">45.856.880/0001-30</div>
         </div>
         
+        <!-- Seção do Código PIX com botão de copiar individual -->
         <div class="codigo-container">
             <div class="codigo-label">
                 📋 CÓDIGO PIX (Copiar e Colar)
@@ -399,10 +410,7 @@
             <button class="btn-imprimir" onclick="imprimir()">🖨️ Imprimir</button>
         </div>
         
-        <div class="dica">
-            💡 <strong>Dica para o cliente no WhatsApp:</strong><br>
-            Para copiar apenas o código ou a chave, pressione e segure o dedo sobre o texto desejado e selecione "Copiar".
-        </div>
+        <div id="telefoneInfo" class="telefone-info" style="display:none;"></div>
     </div>
 </div>
 
@@ -445,34 +453,44 @@ function gerar() {
     const valorFormatado = (!isNaN(valorNum) && valorNum > 0) ? valorNum.toFixed(2) : "";
     valorAtual = valorFormatado;
     
+    // Dados da Souza Farma
     const chave = "45856880000130";
     const nome = "SOUZA FARMA";
     const cidade = "SAO PAULO";
     
+    // Monta o payload PIX completo
     const payload = montarPix(chave, nome, cidade, valorFormatado);
     payloadAtual = payload;
     
+    // Limpa containers
     document.getElementById('q-view').innerHTML = "";
     document.getElementById('q-print').innerHTML = "";
     
+    // Gera QR Code para visualização na tela
     new QRCode(document.getElementById("q-view"), { 
         text: payload, 
         width: 160, 
         height: 160 
     });
     
+    // Gera QR Code para impressão (maior)
     new QRCode(document.getElementById("q-print"), { 
         text: payload, 
         width: 180, 
         height: 180 
     });
     
+    // Mostra o código copia e cola
     document.getElementById('codigoPayload').innerHTML = payload;
+    
+    // Mostra a chave PIX
     document.getElementById('chaveValor').innerHTML = "45.856.880/0001-30";
     
+    // Atualiza display do valor na tela
     const valorExib = (valorFormatado) ? `Valor: R$ ${valorFormatado.replace('.', ',')}` : "Valor: ABERTO (digite no app)";
     document.getElementById('v-view').innerHTML = `<strong>${valorExib}</strong>`;
     
+    // Atualiza display do valor na impressão
     const valorPrint = document.getElementById('v-print');
     if (valorFormatado) {
         valorPrint.innerHTML = `💰 VALOR: R$ ${valorFormatado.replace('.', ',')}`;
@@ -482,7 +500,17 @@ function gerar() {
         valorPrint.style.display = "block";
     }
     
+    // Mostra a área de resultados
     document.getElementById('view').style.display = "block";
+    
+    // Exibe telefone se informado
+    const telefone = document.getElementById('telefone').value;
+    if (telefone) {
+        document.getElementById('telefoneInfo').innerHTML = `📱 WhatsApp: ${telefone}`;
+        document.getElementById('telefoneInfo').style.display = "block";
+    } else {
+        document.getElementById('telefoneInfo').style.display = "none";
+    }
 }
 
 function montarPix(chave, nome, cidade, valor) {
@@ -492,18 +520,18 @@ function montarPix(chave, nome, cidade, valor) {
     let merchantAccount = "26" + (gui.length + chavePix.length).toString().padStart(2, '0') + gui + chavePix;
     
     payload += merchantAccount;
-    payload += "52040000";
-    payload += "5303986";
+    payload += "52040000"; // Merchant Category Code
+    payload += "5303986";  // Moeda: BRL
     
     if (valor && valor !== "") {
         payload += "54" + valor.length.toString().padStart(2, '0') + valor;
     }
 
-    payload += "5802BR";
+    payload += "5802BR"; // Country Code
     payload += "59" + nome.length.toString().padStart(2, '0') + nome;
     payload += "60" + cidade.length.toString().padStart(2, '0') + cidade;
-    payload += "62070503***";
-    payload += "6304";
+    payload += "62070503***"; // TXID padrão
+    payload += "6304"; // Início do CRC
     
     return payload + crc16(payload);
 }
@@ -530,7 +558,10 @@ function mostrarMensagem(mensagem) {
     msg.className = 'copiado-msg';
     msg.innerHTML = mensagem;
     document.body.appendChild(msg);
-    setTimeout(() => msg.remove(), 2000);
+    
+    setTimeout(() => {
+        msg.remove();
+    }, 2000);
 }
 
 function copiarCodigo() {
@@ -538,15 +569,21 @@ function copiarCodigo() {
         alert('Gere o QR Code primeiro!');
         return;
     }
+    
     navigator.clipboard.writeText(payloadAtual).then(() => {
         mostrarMensagem('✅ Código PIX copiado! Cole no app do banco.');
+    }).catch(() => {
+        alert('❌ Erro ao copiar.');
     });
 }
 
 function copiarChave() {
     const chave = "45.856.880/0001-30";
+    
     navigator.clipboard.writeText(chave).then(() => {
         mostrarMensagem('✅ Chave PIX copiada! Cole no app do banco.');
+    }).catch(() => {
+        alert('❌ Erro ao copiar.');
     });
 }
 
@@ -557,6 +594,8 @@ function enviarWhatsApp() {
     }
     
     let telefone = document.getElementById('telefone').value;
+    
+    // Remove caracteres não numéricos
     telefone = telefone.replace(/\D/g, '');
     
     if (!telefone) {
@@ -564,6 +603,7 @@ function enviarWhatsApp() {
         return;
     }
     
+    // Formata o número (adiciona 55 se não tiver)
     if (telefone.length === 10) {
         telefone = '55' + telefone;
     } else if (telefone.length === 11) {
@@ -572,38 +612,28 @@ function enviarWhatsApp() {
         telefone = '55' + telefone;
     }
     
+    // Prepara a mensagem
     const valorExib = valorAtual ? `R$ ${valorAtual.replace('.', ',')}` : "VALOR ABERTO";
     const chave = "45.856.880/0001-30";
     
-    // Formato da mensagem OTIMIZADO para facilitar cópia individual
-    const mensagem = `🏥 *SOUZA FARMA*
+    const mensagem = `🏥 *SOUZA FARMA*\n\n` +
+                     `✅ *Pagamento via PIX*\n\n` +
+                     `💰 *Valor:* ${valorExib}\n\n` +
+                     `🔑 *Chave PIX (CNPJ):* ${chave}\n\n` +
+                     `📋 *Código PIX para copiar e colar:*\n` +
+                     `${payloadAtual}\n\n` +
+                     `🔹 *Como pagar:*\n` +
+                     `1. Abra o app do banco\n` +
+                     `2. Escolha PIX → Pagar com QR Code ou Copiar código\n` +
+                     `3. Escaneie o QR Code ou cole o código acima\n` +
+                     `4. Confirme o valor e finalize\n\n` +
+                     `_______________________________\n` +
+                     `Souza Farma - Sua saúde em boas mãos`;
     
-✅ *PAGAMENTO VIA PIX*
-
-💰 *VALOR:* ${valorExib}
-
-━━━━━━━━━━━━━━━━━━━━
-
-🔑 *CHAVE PIX (CNPJ):*
-📋 \`${chave}\`
-
-📋 *CÓDIGO PIX (Copiar e Colar):*
-📋 \`${payloadAtual}\`
-
-━━━━━━━━━━━━━━━━━━━━
-
-📱 *COMO PAGAR:*
-1️⃣ Abra o app do banco
-2️⃣ Escolha PIX → Pagar com QR Code
-3️⃣ Escaneie o QR Code acima
-4️⃣ Ou cole o código PIX
-5️⃣ Confirme o valor e finalize
-
-______________________________
-Souza Farma - Sua saúde em boas mãos
-📍 Após o pagamento, apresente este comprovante`;
-
+    // Codifica a mensagem para URL
     const mensagemCodificada = encodeURIComponent(mensagem);
+    
+    // Abre o WhatsApp
     const url = `https://wa.me/${telefone}?text=${mensagemCodificada}`;
     window.open(url, '_blank');
 }
@@ -612,6 +642,7 @@ function imprimir() {
     window.print();
 }
 
+// Inicializar com um valor exemplo
 setTimeout(() => {
     document.getElementById('val').value = "0.00";
     gerar();
