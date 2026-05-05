@@ -11,7 +11,6 @@
             box-sizing: border-box;
         }
 
-        /* INTERFACE NA TELA */
         body { 
             font-family: 'Courier New', monospace; 
             background: #f0f0f0; 
@@ -90,25 +89,11 @@
         
         .btn-gerar:hover {
             background: #0e3d26;
-            transform: scale(0.98);
         }
         
         .btn-imprimir { 
             background: #2d3748; 
             color: white; 
-        }
-        
-        .btn-imprimir:hover {
-            background: #1a202c;
-        }
-        
-        .btn-copiar {
-            background: #3b82f6;
-            color: white;
-        }
-        
-        .btn-copiar:hover {
-            background: #2563eb;
         }
         
         .btn-whatsapp {
@@ -166,17 +151,6 @@
             color: #666;
             margin-bottom: 5px;
             font-weight: bold;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .codigo-label button {
-            width: auto;
-            padding: 4px 8px;
-            font-size: 10px;
-            margin: 0;
-            background: #3b82f6;
         }
         
         .codigo-texto {
@@ -197,24 +171,6 @@
             border-radius: 8px;
             margin: 10px 0;
             text-align: left;
-        }
-        
-        .chave-label {
-            font-size: 9px;
-            color: #166534;
-            margin-bottom: 5px;
-            font-weight: bold;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .chave-label button {
-            width: auto;
-            padding: 4px 8px;
-            font-size: 10px;
-            margin: 0;
-            background: #22c55e;
         }
         
         .chave-valor {
@@ -261,102 +217,21 @@
             color: #92400e;
         }
 
-        /* CONFIGURAÇÃO DE IMPRESSÃO TÉRMICA 70mm */
         @media print {
-            @page { 
-                size: 70mm auto; 
-                margin: 0 !important; 
-            }
-            
-            body { 
-                background: white; 
-                margin: 0 !important; 
-                padding: 0 !important; 
-                width: 70mm; 
-            }
-            
-            .box { 
-                display: none !important; 
-            }
-            
-            #print-zone { 
-                display: block !important; 
-                width: 70mm !important;
-                position: absolute; 
-                top: 0 !important; 
-                left: 0 !important;
-                margin: 0 !important; 
-                padding: 3mm 2mm !important;
-                text-align: center;
-                font-family: 'Courier New', monospace;
-            }
-            
-            #q-print {
-                margin: 2mm 0;
-            }
-            
-            #q-print img { 
-                width: 45mm !important; 
-                height: 45mm !important; 
-                border: 1px solid #000;
-                padding: 2mm;
-            }
-            
-            h2 { 
-                font-size: 14pt; 
-                margin: 0 0 2mm 0; 
-                font-weight: bold; 
-                letter-spacing: 2px;
-            }
-            
-            .empresa {
-                font-size: 8pt;
-                margin: 1mm 0;
-                color: #333;
-            }
-            
-            .linha {
-                border-top: 1px dashed #000;
-                margin: 2mm 0;
-            }
-            
-            .valor-print { 
-                font-size: 13pt; 
-                font-weight: bold; 
-                margin: 2mm 0; 
-                padding: 1mm;
-                border: 1px dashed #000;
-            }
-            
-            .chave-print {
-                font-size: 11pt;
-                font-weight: bold;
-                margin: 2mm 0;
-                background: #f0f0f0;
-                padding: 1mm;
-            }
-            
-            .instrucao {
-                font-size: 7pt;
-                margin: 2mm 0;
-                text-align: left;
-            }
-            
-            .footer {
-                font-size: 7pt;
-                margin-top: 2mm;
-                padding-top: 1mm;
-                border-top: 1px dashed #000;
-            }
-            
-            .whatsapp-note, .dica, .btn-whatsapp {
-                display: none !important;
-            }
+            @page { size: 70mm auto; margin: 0 !important; }
+            body { background: white; margin: 0; padding: 0; width: 70mm; }
+            .box { display: none !important; }
+            #print-zone { display: block !important; width: 70mm; margin: 0; padding: 3mm 2mm; text-align: center; }
+            #q-print img { width: 45mm !important; height: 45mm !important; border: 1px solid #000; padding: 2mm; }
+            h2 { font-size: 14pt; margin: 0 0 2mm 0; }
+            .valor-print { font-size: 13pt; font-weight: bold; margin: 2mm 0; padding: 1mm; border: 1px dashed #000; }
+            .chave-print { font-size: 11pt; font-weight: bold; margin: 2mm 0; background: #f0f0f0; padding: 1mm; }
+            .instrucao { font-size: 7pt; margin: 2mm 0; text-align: left; }
+            .footer { font-size: 7pt; margin-top: 2mm; padding-top: 1mm; border-top: 1px dashed #000; }
+            .whatsapp-note, .dica, .btn-whatsapp { display: none !important; }
         }
         
-        #print-zone { 
-            display: none; 
-        }
+        #print-zone { display: none; }
     </style>
 </head>
 <body>
@@ -379,18 +254,10 @@
         <div id="v-view"></div>
         
         <div class="chave-container">
-            <div class="chave-label">
-                🔑 CHAVE PIX (CNPJ)
-                <button class="btn-copiar-chave" onclick="copiarChave()">📋 Copiar chave</button>
-            </div>
             <div class="chave-valor" id="chaveValor">45.856.880/0001-30</div>
         </div>
         
         <div class="codigo-container">
-            <div class="codigo-label">
-                📋 CÓDIGO PIX (Copiar e Colar)
-                <button class="btn-copiar-codigo" onclick="copiarCodigo()">📋 Copiar código</button>
-            </div>
             <div class="codigo-texto" id="codigoPayload"></div>
         </div>
         
@@ -400,8 +267,11 @@
         </div>
         
         <div class="dica">
-            💡 <strong>Dica para o cliente no WhatsApp:</strong><br>
-            Para copiar apenas o código ou a chave, pressione e segure o dedo sobre o texto desejado e selecione "Copiar".
+            💡 <strong>O que será enviado ao cliente:</strong><br>
+            • 1ª mensagem: Apenas a CHAVE PIX<br>
+            • 2ª mensagem: Apenas o CÓDIGO PIX<br>
+            • 3ª mensagem: Instruções + QR Code<br>
+            Assim o cliente pode copiar cada informação separadamente!
         </div>
     </div>
 </div>
@@ -410,25 +280,16 @@
     <h2>SOUZA FARMA</h2>
     <div class="empresa">CNPJ: 45.856.880/0001-30</div>
     <div class="linha"></div>
-    
     <div id="q-print"></div>
-    
     <div id="v-print" class="valor-print"></div>
-    
-    <div class="chave-print">
-        🔑 Chave PIX: 45.856.880/0001-30
-    </div>
-    
+    <div class="chave-print">🔑 Chave PIX: 45.856.880/0001-30</div>
     <div class="instrucao">
         📱 COMO PAGAR:<br>
-        1. Abra o app do seu banco<br>
+        1. Abra o app do banco<br>
         2. Escolha PIX → Pagar com QR Code ou Copiar código<br>
         3. Escaneie o QR Code ou cole o código<br>
         4. Confirme o valor e finalize
     </div>
-    
-    <div class="linha"></div>
-    
     <div class="footer">
         Souza Farma - Sua saúde em boas mãos<br>
         Após o pagamento, apresente este comprovante
@@ -455,17 +316,8 @@ function gerar() {
     document.getElementById('q-view').innerHTML = "";
     document.getElementById('q-print').innerHTML = "";
     
-    new QRCode(document.getElementById("q-view"), { 
-        text: payload, 
-        width: 160, 
-        height: 160 
-    });
-    
-    new QRCode(document.getElementById("q-print"), { 
-        text: payload, 
-        width: 180, 
-        height: 180 
-    });
+    new QRCode(document.getElementById("q-view"), { text: payload, width: 160, height: 160 });
+    new QRCode(document.getElementById("q-print"), { text: payload, width: 180, height: 180 });
     
     document.getElementById('codigoPayload').innerHTML = payload;
     document.getElementById('chaveValor').innerHTML = "45.856.880/0001-30";
@@ -476,10 +328,8 @@ function gerar() {
     const valorPrint = document.getElementById('v-print');
     if (valorFormatado) {
         valorPrint.innerHTML = `💰 VALOR: R$ ${valorFormatado.replace('.', ',')}`;
-        valorPrint.style.display = "block";
     } else {
         valorPrint.innerHTML = `💰 VALOR ABERTO (digite o valor no app)`;
-        valorPrint.style.display = "block";
     }
     
     document.getElementById('view').style.display = "block";
@@ -533,23 +383,6 @@ function mostrarMensagem(mensagem) {
     setTimeout(() => msg.remove(), 2000);
 }
 
-function copiarCodigo() {
-    if (!payloadAtual) {
-        alert('Gere o QR Code primeiro!');
-        return;
-    }
-    navigator.clipboard.writeText(payloadAtual).then(() => {
-        mostrarMensagem('✅ Código PIX copiado! Cole no app do banco.');
-    });
-}
-
-function copiarChave() {
-    const chave = "45.856.880/0001-30";
-    navigator.clipboard.writeText(chave).then(() => {
-        mostrarMensagem('✅ Chave PIX copiada! Cole no app do banco.');
-    });
-}
-
 function enviarWhatsApp() {
     if (!payloadAtual) {
         alert('Gere o QR Code primeiro!');
@@ -575,37 +408,38 @@ function enviarWhatsApp() {
     const valorExib = valorAtual ? `R$ ${valorAtual.replace('.', ',')}` : "VALOR ABERTO";
     const chave = "45.856.880/0001-30";
     
-    // Formato da mensagem OTIMIZADO para facilitar cópia individual
-    const mensagem = `🏥 *SOUZA FARMA*
+    // ============================================================
+    // ENVIA 3 MENSAGENS SEPARADAS para facilitar a cópia individual
+    // ============================================================
     
-✅ *PAGAMENTO VIA PIX*
-
-💰 *VALOR:* ${valorExib}
-
-━━━━━━━━━━━━━━━━━━━━
-
-🔑 *CHAVE PIX (CNPJ):*
-📋 \`${chave}\`
-
-📋 *CÓDIGO PIX (Copiar e Colar):*
-📋 \`${payloadAtual}\`
-
-━━━━━━━━━━━━━━━━━━━━
-
-📱 *COMO PAGAR:*
-1️⃣ Abra o app do banco
-2️⃣ Escolha PIX → Pagar com QR Code
-3️⃣ Escaneie o QR Code acima
-4️⃣ Ou cole o código PIX
-5️⃣ Confirme o valor e finalize
-
-______________________________
-Souza Farma - Sua saúde em boas mãos
-📍 Após o pagamento, apresente este comprovante`;
-
-    const mensagemCodificada = encodeURIComponent(mensagem);
-    const url = `https://wa.me/${telefone}?text=${mensagemCodificada}`;
-    window.open(url, '_blank');
+    // Mensagem 1: Apenas a CHAVE PIX
+    const msgChave = `🔑 *CHAVE PIX SOUZA FARMA*\n\nCopie o CNPJ abaixo:\n\n\`${chave}\``;
+    
+    // Mensagem 2: Apenas o CÓDIGO PIX
+    const msgCodigo = `📋 *CÓDIGO PIX SOUZA FARMA*\n\nCopie o código abaixo e cole no app do banco:\n\n\`${payloadAtual}\``;
+    
+    // Mensagem 3: Instruções completas + valor + QR Code
+    const msgInstrucoes = `🏥 *SOUZA FARMA*\n\n✅ *PAGAMENTO VIA PIX*\n\n💰 *VALOR:* ${valorExib}\n\n📱 *COMO PAGAR:*\n1️⃣ Abra o app do banco\n2️⃣ Escolha PIX → Pagar com código\n3️⃣ Cole o código que enviei acima\n4️⃣ Confirme o valor e finalize\n\n______________________________\nSouza Farma - Sua saúde em boas mãos`;
+    
+    // Abre o WhatsApp e envia as 3 mensagens em sequência
+    const urlBase = `https://wa.me/${telefone}?text=`;
+    
+    // Envia primeira mensagem (Chave)
+    setTimeout(() => {
+        window.open(urlBase + encodeURIComponent(msgChave), '_blank');
+    }, 500);
+    
+    // Envia segunda mensagem (Código PIX) após 2 segundos
+    setTimeout(() => {
+        window.open(urlBase + encodeURIComponent(msgCodigo), '_blank');
+    }, 2000);
+    
+    // Envia terceira mensagem (Instruções) após 4 segundos
+    setTimeout(() => {
+        window.open(urlBase + encodeURIComponent(msgInstrucoes), '_blank');
+    }, 3500);
+    
+    mostrarMensagem('✅ Enviando 3 mensagens separadas para o cliente!\n\n1ª: Chave PIX\n2ª: Código PIX\n3ª: Instruções');
 }
 
 function imprimir() {
