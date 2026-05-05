@@ -27,7 +27,7 @@
             background: white; 
             padding: 24px; 
             border-radius: 16px; 
-            width: 400px; 
+            width: 420px; 
             text-align: center; 
             box-shadow: 0 4px 20px rgba(0,0,0,0.1);
         }
@@ -62,9 +62,8 @@
             border: 2px solid #ddd; 
             border-radius: 10px; 
             box-sizing: border-box; 
-            font-size: 16px; 
+            font-size: 14px; 
             font-family: monospace;
-            text-align: center;
         }
         
         input:focus {
@@ -112,15 +111,26 @@
             background: #2563eb;
         }
         
+        .btn-whatsapp {
+            background: #25D366;
+            color: white;
+        }
+        
+        .btn-whatsapp:hover {
+            background: #128C7E;
+        }
+        
         .btn-group {
             display: flex;
             gap: 10px;
             margin: 10px 0;
+            flex-wrap: wrap;
         }
         
         .btn-group button {
             flex: 1;
             margin-bottom: 0;
+            min-width: 100px;
         }
         
         #q-view {
@@ -197,6 +207,15 @@
             0% { opacity: 1; }
             70% { opacity: 1; }
             100% { opacity: 0; visibility: hidden; }
+        }
+        
+        .telefone-info {
+            background: #e8f0fe;
+            padding: 8px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-size: 11px;
+            color: #1e40af;
         }
 
         /* CONFIGURAÇÃO DE IMPRESSÃO TÉRMICA 70mm */
@@ -290,10 +309,21 @@
             .codigo-print {
                 display: none;
             }
+            
+            /* Telefone NÃO aparece na impressão */
+            .telefone-info, .btn-whatsapp, .whatsapp-note {
+                display: none !important;
+            }
         }
         
         #print-zone { 
             display: none; 
+        }
+        
+        .whatsapp-note {
+            font-size: 10px;
+            color: #666;
+            margin-top: 5px;
         }
     </style>
 </head>
@@ -305,6 +335,10 @@
     
     <label>💰 Valor do PIX (R$)</label>
     <input type="number" id="val" placeholder="0,00" step="0.01" value="0.00">
+    
+    <label>📱 Telefone do cliente (WhatsApp)</label>
+    <input type="tel" id="telefone" placeholder="(11) 99999-9999" value="">
+    <div class="whatsapp-note">*O telefone NÃO aparece na impressão, apenas para envio via WhatsApp</div>
     
     <button class="btn-gerar" onclick="gerar()">✨ GERAR QR CODE PIX</button>
     
@@ -319,12 +353,15 @@
         
         <div class="btn-group">
             <button class="btn-copiar" onclick="copiarCodigo()">📋 Copiar código</button>
+            <button class="btn-whatsapp" onclick="enviarWhatsApp()">💚 Enviar via WhatsApp</button>
             <button class="btn-imprimir" onclick="imprimir()">🖨️ Imprimir</button>
         </div>
         
         <div class="chave-info">
             🔑 Chave PIX: 45.856.880/0001-30
         </div>
+        
+        <div id="telefoneInfo" class="telefone-info" style="display:none;"></div>
     </div>
 </div>
 
@@ -359,11 +396,13 @@
 
 <script>
 let payloadAtual = "";
+let valorAtual = "";
 
 function gerar() {
     const valorInput = document.getElementById('val').value;
     const valorNum = parseFloat(valorInput);
     const valorFormatado = (!isNaN(valorNum) && valorNum > 0) ? valorNum.toFixed(2) : "";
+    valorAtual = valorFormatado;
     
     // Dados da Souza Farma
     const chave = "45856880000130";
@@ -411,6 +450,15 @@ function gerar() {
     
     // Mostra a área de resultados
     document.getElementById('view').style.display = "block";
+    
+    // Exibe telefone se informado
+    const telefone = document.getElementById('telefone').value;
+    if (telefone) {
+        document.getElementById('telefoneInfo').innerHTML = `📱 WhatsApp: ${telefone}`;
+        document.getElementById('telefoneInfo').style.display = "block";
+    } else {
+        document.getElementById('telefoneInfo').style.display = "none";
+    }
 }
 
 function montarPix(chave, nome, cidade, valor) {
@@ -472,6 +520,55 @@ function copiarCodigo() {
     }).catch(() => {
         alert('❌ Erro ao copiar. Selecione o texto manualmente.');
     });
+}
+
+function enviarWhatsApp() {
+    if (!payloadAtual) {
+        alert('Gere o QR Code primeiro!');
+        return;
+    }
+    
+    let telefone = document.getElementById('telefone').value;
+    
+    // Remove caracteres não numéricos
+    telefone = telefone.replace(/\D/g, '');
+    
+    if (!telefone) {
+        alert('⚠️ Informe o número de telefone antes de enviar!');
+        return;
+    }
+    
+    // Formata o número (adiciona 55 se não tiver)
+    if (telefone.length === 10) {
+        telefone = '55' + telefone;
+    } else if (telefone.length === 11) {
+        telefone = '55' + telefone;
+    } else if (telefone.length === 12 && !telefone.startsWith('55')) {
+        telefone = '55' + telefone;
+    }
+    
+    // Prepara a mensagem
+    const valorExib = valorAtual ? `R$ ${valorAtual.replace('.', ',')}` : "VALOR ABERTO";
+    const mensagem = `🏥 *SOUZA FARMA*\n\n` +
+                     `✅ *Pagamento via PIX*\n\n` +
+                     `💰 *Valor:* ${valorExib}\n\n` +
+                     `📋 *Código PIX para copiar e colar:*\n` +
+                     `${payloadAtual}\n\n` +
+                     `🔑 *Chave PIX (CNPJ):* 45.856.880/0001-30\n\n` +
+                     `🔹 *Como pagar:*\n` +
+                     `1. Abra o app do banco\n` +
+                     `2. Escolha PIX → Pagar com QR Code ou Copiar código\n` +
+                     `3. Escaneie o QR Code ou cole o código acima\n` +
+                     `4. Confirme o valor e finalize\n\n` +
+                     `_______________________________\n` +
+                     `Souza Farma - Sua saúde em boas mãos`;
+    
+    // Codifica a mensagem para URL
+    const mensagemCodificada = encodeURIComponent(mensagem);
+    
+    // Abre o WhatsApp
+    const url = `https://wa.me/${telefone}?text=${mensagemCodificada}`;
+    window.open(url, '_blank');
 }
 
 function imprimir() {
